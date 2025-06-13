@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Script from 'next/script'
-
+import Image from 'next/image'
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -110,10 +110,11 @@ export default function HomePage() {
           ))}
         </motion.div>
         <Script
-          src="https://www.instagram.com/embed.js"
-          strategy="lazyOnload"
-          onLoad={() => (window as any).instgrm?.Embeds.process()}
-        />
+  src="https://www.instagram.com/embed.js"
+  strategy="lazyOnload"
+  onLoad={() => window.instgrm?.Embeds.process()}
+/>
+
       </section>
 
 
@@ -138,9 +139,11 @@ export default function HomePage() {
     variants={fadeUp}
     transition={{ duration: 0.6, delay: 0.2 }}
   >
-<img
+<Image
   src="/images/meriem.jpg"
   alt="Meriem Bouzir"
+  width={300}
+  height={300}
   className="therapist-photo"
 />
 
