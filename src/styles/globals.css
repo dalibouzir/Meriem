@@ -1,0 +1,296 @@
+/* 1. Reset & base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: system-ui, sans-serif;
+    color: #1F2937;
+    background: #ffffff;
+  }
+  
+  /* 2. Navbar: purple gradient */
+  .navbar {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(to right, #7C3AED, #9D7CE8);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 50;
+  }
+  .navbar .container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .navbar .logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .links a {
+    margin-left: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .navbar .links a:hover {
+    color: #EDE9FE;
+  }
+  
+  /* 3. Hero (all white) */
+  .hero {
+    background: #fff;
+    min-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+  }
+  @media (min-width: 768px) {
+    .hero h1 { font-size: 4rem; }
+  }
+  .hero h1::after {
+    content: '';
+    position: absolute;
+    bottom: -0.4rem;
+    left: 0;
+    width: 50%;
+    height: 4px;
+    background: #7C3AED;
+    border-radius: 2px;
+  }
+  .hero p {
+    font-size: 1.125rem;
+    color: #4B5563;
+    margin-bottom: 2rem;
+  }
+  
+  /* 4. Section backgrounds in order */
+  .section-white      { background: #ffffff; }
+  .section-purple-50  { background: #F5F3FF; }
+  .section-purple-100 { background: #ffffff; } /* unused */
+  .section-purple-200 { background: linear-gradient(to right, #7C3AED, #9D7CE8); }
+  
+  /* 5. Section common */
+  .section { padding: 4rem 2rem; }
+  .section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, #7C3AED, #9D7CE8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+  }
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #9D7CE8;
+    margin-top: 0.5rem;
+    border-radius: 2px;
+  }
+  .section-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: #4B5563;
+  }
+  
+  /* 6. Buttons */
+  .btn-group {
+    display: inline-flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .btn-primary {
+    background: linear-gradient(to right, #9D7CE8, #7C3AED);
+    color: #fff;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 6px 20px rgba(124,58,237,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(124,58,237,0.4);
+  }
+  .btn-outline {
+    padding: 0.75rem 2rem;
+    border: 2px solid #7C3AED;
+    color: #7C3AED;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: transparent;
+    transition: background 0.2s, transform 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .btn-outline:hover {
+    background: rgba(124,58,237,0.1);
+    transform: translateY(-2px) scale(1.02);
+  }
+  
+  /* 7. Utility */
+  .center       { text-align: center; }
+  .text-left-md { text-align: center; }
+  .text-right-md{ text-align: center; }
+  @media (min-width: 768px) {
+    .text-left-md  { text-align: left; }
+    .text-right-md { text-align: right; }
+  }
+  .container-lg {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  /* 8. Grids & cards */
+  .features-grid,
+  .courses-grid,
+  .about-grid { display: grid; gap: 2rem; margin-top: 2rem; }
+  .features-grid { grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); text-align: center; }
+  .courses-grid,
+  .about-grid { grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); }
+  .card {
+    background: #fff;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+  .card-img {
+    width: 100%;
+    padding-bottom: 56%;
+    background-size: cover;
+    background-position: center;
+  }
+  .card-content {
+    padding: 1.25rem;
+  }
+  .card-content h3 {
+    margin-bottom: 0.5rem;
+  }
+  .card-meta {
+    font-size: 0.875rem;
+    color: #6B7280;
+    margin-bottom: 1rem;
+  }
+  
+  /* 9. About & socials */
+  .about-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .about-icon,
+  .social-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .social-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  /* 10. Instagram embeds */
+  .instagram-media {
+    margin: 0 auto;
+  }
+  
+  /* 11. Spinner */
+  .spinner {
+    border: 4px solid rgba(0,0,0,0.1);
+    border-top: 4px solid #7C3AED;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  /* 12. Typography helpers */
+  .lead {
+    font-size: 1.25rem;
+    color: #6B7280;
+    margin-bottom: 1.5rem;
+  }
+  .highlight {
+    background: linear-gradient(90deg, #9D7CE8, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subheading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #4B5563;
+  }
+  .testimonial {
+    font-style: italic;
+    border-left: 4px solid #7C3AED;
+    padding-left: 1rem;
+    margin-bottom: 2rem;
+    color: #374151;
+  }
+  
+  /* — CONTACT ENHANCEMENTS — */
+  .contact-container {
+    max-width: 800px;
+    margin: 2rem auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+  @media (min-width: 768px) {
+    .contact-container {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+  .therapist-photo {
+    width: 300px;
+    height: 300px;
+    border-radius: 9999px;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .contact-info {
+    max-width: 500px;
+  }
+  .section-purple-200 .section-title,
+  .section-purple-200 .section-text {
+    color: #ffffff;
+  }
+  
