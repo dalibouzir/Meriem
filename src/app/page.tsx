@@ -60,7 +60,7 @@ export default function HomePage() {
         <motion.div className="about-grid" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}>
           {features.map(f => (
             <div className="about-item" key={f.text}>
-            <Image src={f.icon} alt="" className="about-icon" />
+              <img src={f.icon} alt="" className="about-icon" />
               <p className="section-text">{f.text}</p>
             </div>
           ))}
@@ -177,28 +177,28 @@ export default function HomePage() {
     transition={{ duration: 0.6, delay: 0.4 }}
   >
     <a href="https://www.facebook.com/myriem.bouzir" target="_blank" rel="noreferrer">
-    <Image
+      <img
         src="https://img.icons8.com/color/48/000000/facebook-new.png"
         alt="Facebook"
         className="social-icon"
       />
     </a>
     <a href="https://www.instagram.com/meriem.bouzir/" target="_blank" rel="noreferrer">
-    <Image
+      <img
         src="https://img.icons8.com/color/48/000000/instagram-new.png"
         alt="Instagram"
         className="social-icon"
       />
     </a>
     <a href="https://www.linkedin.com/in/meriem-bouzir-917624135/" target="_blank" rel="noreferrer">
-    <Image
+      <img
         src="https://img.icons8.com/color/48/000000/linkedin-circled.png"
         alt="LinkedIn"
         className="social-icon"
       />
     </a>
     <a href="https://www.youtube.com/@Haythem.meriem.podcast" target="_blank" rel="noreferrer">
-    <Image
+      <img
         src="https://img.icons8.com/color/48/000000/youtube-play.png"
         alt="YouTube"
         className="social-icon"
