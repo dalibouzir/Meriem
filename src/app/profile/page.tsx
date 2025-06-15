@@ -14,16 +14,7 @@ export default function ProfilePage() {
   const router = useRouter()
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      if (data?.user) {
-        setUser({ id: data.user.id, email: data.user.email })
-      } else {
-        router.push("/auth/login")
-      }
-      setLoading(false)
-    }
-    getUser()
+   
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {

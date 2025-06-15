@@ -151,7 +151,7 @@ export default function QuizPage() {
         ]);
         if (error) setSaveStatus("❌ Error saving quiz result.");
         else setSaveStatus("✅ Quiz result saved!");
-      } catch (e) {
+      } catch (err) {
         setSaveStatus("❌ Exception saving quiz result.");
       }
       setLoading(false);
@@ -293,7 +293,7 @@ export default function QuizPage() {
                     )}
                     {quizQs[step].type === "options" && (
                       <div className="options">
-                        {(quizQs[step] as { options: string[] }).options.map((opt: string) => (
+                        {(quizQs[step] as { options: string[] }).options.map((opt) => (
                           <button
                             key={opt}
                             onClick={() => handleAnswer(opt)}
@@ -393,7 +393,7 @@ export default function QuizPage() {
                   .filter((s) => s.count > 0)
                   .sort((a, b) => b.count - a.count)
                   .slice(0, 10)
-                  .map((stat, idx) => (
+                  .map((stat) => (
                     <div className="top10-emotion-row" key={stat.name}>
                       <span className="top10-emotion-emoji">
                         {emotionResults[stat.name].emoji}

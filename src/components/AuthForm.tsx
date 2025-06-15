@@ -84,7 +84,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           "Signup successful! Please check your email to confirm your account."
         );
       } else {
-        const { data: loginData, error: loginError } =
+        const { error: loginError } =
           await supabase.auth.signInWithPassword({ email, password });
         if (loginError) throw loginError;
         setSuccess("Login successful! Redirecting...");
