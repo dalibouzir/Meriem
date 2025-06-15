@@ -240,8 +240,7 @@ export default function QuizPage() {
                     />
                   </div>
                   <div className="progress-number">
-                    {step + 1} <span className="progress-divider">/</span>{" "}
-                    {total}
+                    {step + 1} <span className="progress-divider">/</span> {total}
                   </div>
                 </div>
                 <AnimatePresence mode="wait">
@@ -420,8 +419,8 @@ export default function QuizPage() {
                   .filter((s) => s.count > 0)
                   .sort((a, b) => b.count - a.count)
                   .slice(0, 10)
-                  .map((stat) => (
-                    <div className="top10-emotion-row" key={stat.name}>
+                  .map((stat, idx) => (
+                    <div className="top10-emotion-row" key={stat.name + '-' + idx}>
                       <span className="top10-emotion-emoji">
                         {emotionResults[stat.name].emoji}
                       </span>
