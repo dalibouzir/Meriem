@@ -16,7 +16,7 @@ export default function ProfilePage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
-        setUser({ id: data.user.id, email: data.user.email })
+        
         setLoading(false)
       } else {
         router.push("/auth/login")
