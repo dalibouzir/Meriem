@@ -391,22 +391,22 @@ export default function QuizPage() {
                       const total = pieStats.reduce((a, b) => a + b.count, 0);
                       const percent =
                         total > 0 ? Math.round((value / total) * 100) : 0;
-                      return [
-                        <span key="main" >
+                      return (
+                        <span>
                           <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
                             {emotion.emoji}
                           </span>
                           <b>{emotion.label}</b>:{" "}
-                          <span style={{ color: "#7c3aed" }}>{value}</span>{" "}
-                          result
+                          <span style={{ color: "#7c3aed" }}>{value}</span> result
                           {value === 1 ? "" : "s"}
                           <br />
                           <span style={{ color: "#6d28d9" }}>
                             {percent}% of users
                           </span>
-                        </span>,
-                      ];
+                        </span>
+                      );
                     }}
+                    
                   />
                 </PieChart>
               </ResponsiveContainer>
