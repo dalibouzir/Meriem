@@ -15,7 +15,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 
@@ -28,6 +27,8 @@ const PIE_COLORS = [
   "#eab308",
   "#ec4899",
 ];
+
+type PieStat = { name: Emotion; count: number };
 
 const EMOTIONS_GRID_ORDER: Emotion[] = [
   "Joy",
@@ -59,19 +60,16 @@ const EMOTIONS_GRID_ORDER: Emotion[] = [
 
 export default function QuizPage() {
   const [quizQs, setQuizQs] = useState<Question[] | null>(null);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<number>(0);
   const [scores, setScores] = useState<Record<Emotion, number>>(
     Object.fromEntries(emotions.map((e) => [e, 0])) as Record<Emotion, number>
   );
-  const [scaleValue, setScaleValue] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [scaleValue, setScaleValue] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<Emotion | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [pieStats, setPieStats] = useState<{ name: Emotion; count: number }[]>(
-    []
-  );
-  const [pieTotal, setPieTotal] = useState(0);
+  const [pieStats, setPieStats] = useState<PieStat[]>([]);
 
   // Quiz logic
   useEffect(() => {
@@ -91,8 +89,8 @@ export default function QuizPage() {
       if (!data) return;
       const counts: Record<Emotion, number> = Object.fromEntries(
         emotions.map((e) => [e, 0])
-      ) as any;
-      data.forEach((r: any) => {
+      ) as Record<Emotion, number>;
+      (data as { top_emotion: Emotion }[]).forEach((r) => {
         if (
           r.top_emotion &&
           typeof r.top_emotion === "string" &&
@@ -102,9 +100,8 @@ export default function QuizPage() {
             (counts[r.top_emotion as Emotion] ?? 0) + 1;
         }
       });
-      const arr = emotions.map((e) => ({ name: e, count: counts[e] }));
+      const arr: PieStat[] = emotions.map((e) => ({ name: e, count: counts[e] }));
       setPieStats(arr);
-      setPieTotal(arr.reduce((sum, v) => sum + v.count, 0));
     }
     fetchStats();
   }, []);
@@ -233,208 +230,205 @@ export default function QuizPage() {
   return (
     <section className="emotion-grid-section">
       {Intro}
-
       <div className="emotion-grid">
-  {EMOTIONS_GRID_ORDER.map((em, i) =>
-    i === 12 ? (
-      <div key="quiz" className="emotion-quiz-cell emotion-quiz-gap">
-        <div className="quiz-card quiz-card-v2 emotion-quiz-fancy">
-          {/* Progress bar */}
-          <div className="progress-container">
-            <div className="progress-bar-bg">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${((step + 1) / total) * 100}%` }}
-              />
+        {EMOTIONS_GRID_ORDER.map((em, i) =>
+          i === 12 ? (
+            <div key="quiz" className="emotion-quiz-cell emotion-quiz-gap">
+              <div className="quiz-card quiz-card-v2 emotion-quiz-fancy">
+                <div className="progress-container">
+                  <div className="progress-bar-bg">
+                    <div
+                      className="progress-bar-fill"
+                      style={{ width: `${((step + 1) / total) * 100}%` }}
+                    />
+                  </div>
+                  <div className="progress-number">
+                    {step + 1} <span className="progress-divider">/</span> {total}
+                  </div>
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    transition={{ duration: 0.38 }}
+                  >
+                    <h2 className="quiz-q-hero">{quizQs[step].q}</h2>
+                    {quizQs[step].type === "yesno" && (
+                      <div className="options">
+                        {["Yes", "No"].map(opt => (
+                          <button
+                            key={opt}
+                            onClick={() => handleAnswer(opt)}
+                            className="btn-outline"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {quizQs[step].type === "scale" && (
+                      <div className="scale-block">
+                        <input
+                          type="range"
+                          min={(quizQs[step] as { min: number }).min}
+                          max={(quizQs[step] as { max: number }).max}
+                          value={scaleValue}
+                          onChange={e => setScaleValue(Number(e.target.value))}
+                          className="slider"
+                        />
+                        <div className="scale-labels">
+                          {Array.from({ length: ((quizQs[step] as { max: number; min: number }).max - (quizQs[step] as { min: number }).min + 1) }, (_, idx) => (
+                            <span key={idx}>{(quizQs[step] as { min: number }).min + idx}</span>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => handleAnswer(String(scaleValue))}
+                          className="btn-primary next-shadow"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                    {quizQs[step].type === "options" && (
+                      <div className="options">
+                        {(quizQs[step] as { options: string[] }).options.map((opt: string) => (
+                          <button
+                            key={opt}
+                            onClick={() => handleAnswer(opt)}
+                            className="btn-outline"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
-            <div className="progress-number">
-              {step + 1} <span className="progress-divider">/</span> {total}
+          ) : (
+            <div key={em} className="emotion-cell">
+              <div className="emotion-card emotion-card-full">
+                <span className="emotion-emoji">{emotionResults[em].emoji}</span>
+                <span className="emotion-name">{emotionResults[em].label}</span>
+                <span className="emotion-desc">{emotionResults[em].description}</span>
+                {emotionResults[em].tip && (
+                  <span className="emotion-tip"><b>Tip:</b> {emotionResults[em].tip}</span>
+                )}
+              </div>
+            </div>
+          )
+        )}
+      </div>
+
+      {/* PIE CHART + TOP 10 BOX */}
+      <div className="emotion-pie-section">
+        <div className="emotion-pie-card" style={{ position: "relative" }}>
+          <h3>Community Emotion Distribution</h3>
+          <div className={userId ? "pie-protected-content" : "pie-protected-content blurred-pie"}>
+            {/* Chart */}
+            <div className="emotion-pie-visual">
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={pieStats.filter(
+                      (s) => s.count > 0 && s.name !== "Grief"
+                    )}
+                    dataKey="count"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={85}
+                  >
+                    {pieStats
+                      .filter((s) => s.count > 0 && s.name !== "Grief")
+                      .map((entry, idx) => (
+                        <Cell
+                          key={entry.name}
+                          fill={PIE_COLORS[idx % PIE_COLORS.length]}
+                        />
+                      ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "#fff",
+                      border: "1.5px solid #7c3aed",
+                      color: "#222",
+                      borderRadius: "12px",
+                      fontSize: "1.03rem",
+                      boxShadow: "0 3px 16px #eee",
+                      padding: "0.8rem 1rem",
+                    }}
+                    formatter={(value: number, name: string) => {
+                      const emotion = emotionResults[name as Emotion];
+                      const total = pieStats.reduce((a, b) => a + b.count, 0);
+                      const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                      return [
+                        <span>
+                          <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
+                            {emotion.emoji}
+                          </span>
+                          <b>{emotion.label}</b>:{" "}
+                          <span style={{ color: "#7c3aed" }}>{value}</span> result
+                          {value === 1 ? "" : "s"}
+                          <br />
+                          <span style={{ color: "#6d28d9" }}>
+                            {percent}% of users
+                          </span>
+                        </span>,
+                      ];
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* TOP 10 EMOTIONS */}
+            <div className="top10-emotions-box">
+              <div className="top10-title">Top 10 Emotions</div>
+              <div className="top10-list">
+                {pieStats
+                  .filter((s) => s.count > 0)
+                  .sort((a, b) => b.count - a.count)
+                  .slice(0, 10)
+                  .map((stat, idx) => (
+                    <div className="top10-emotion-row" key={stat.name}>
+                      <span className="top10-emotion-emoji">
+                        {emotionResults[stat.name].emoji}
+                      </span>
+                      <span className="top10-emotion-label">
+                        {emotionResults[stat.name].label}
+                      </span>
+                      <span className="top10-emotion-value">
+                        {Math.round(
+                          (stat.count /
+                            pieStats.reduce((a, b) => a + b.count, 0)) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
-          {/* Animated question */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.38 }}
-            >
-              <h2 className="quiz-q-hero">{quizQs[step].q}</h2>
-              {quizQs[step].type === "yesno" && (
-                <div className="options">
-                  {["Yes", "No"].map(opt => (
-                    <button
-                      key={opt}
-                      onClick={() => handleAnswer(opt)}
-                      className="btn-outline"
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {quizQs[step].type === "scale" && (
-                <div className="scale-block">
-                  <input
-                    type="range"
-                    min={(quizQs[step] as any).min}
-                    max={(quizQs[step] as any).max}
-                    value={scaleValue}
-                    onChange={e => setScaleValue(Number(e.target.value))}
-                    className="slider"
-                  />
-                  <div className="scale-labels">
-                    {Array.from({ length: (quizQs[step] as any).max - (quizQs[step] as any).min + 1 }, (_, idx) => (
-                      <span key={idx}>{(quizQs[step] as any).min + idx}</span>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => handleAnswer(String(scaleValue))}
-                    className="btn-primary next-shadow"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-              {quizQs[step].type === "options" && (
-                <div className="options">
-                  {(quizQs[step] as any).options.map((opt: string) => (
-                    <button
-                      key={opt}
-                      onClick={() => handleAnswer(opt)}
-                      className="btn-outline"
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-    ) : (
-      <div key={em} className="emotion-cell">
-        <div className="emotion-card emotion-card-full">
-          <span className="emotion-emoji">{emotionResults[em].emoji}</span>
-          <span className="emotion-name">{emotionResults[em].label}</span>
-          <span className="emotion-desc">{emotionResults[em].description}</span>
-          {emotionResults[em].tip && (
-            <span className="emotion-tip"><b>Tip:</b> {emotionResults[em].tip}</span>
+          {/* Overlay: Only when not logged in */}
+          {!userId && (
+            <div className="pie-signin-cover">
+              <div>
+                <p style={{ marginBottom: "1.1rem" }}>
+                  Please sign in to view the community insights.
+                </p>
+                <a href="/auth/login" className="btn-signin">
+                  Sign In
+                </a>
+              </div>
+            </div>
           )}
         </div>
       </div>
-    )
-  )}
-</div>
-
-
-<div className="emotion-pie-section">
-  {/* PIE CHART + TOP 10 BOX */}
-  <div className="emotion-pie-card" style={{ position: "relative" }}>
-    <h3>Community Emotion Distribution</h3>
-    <div className={userId ? "pie-protected-content" : "pie-protected-content blurred-pie"}>
-      {/* Chart */}
-      <div className="emotion-pie-visual">
-        <ResponsiveContainer width="100%" height={220}>
-          <PieChart>
-            <Pie
-              data={pieStats.filter(
-                (s) => s.count > 0 && s.name !== "Grief"
-              )}
-              dataKey="count"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={85}
-            >
-              {pieStats
-                .filter((s) => s.count > 0 && s.name !== "Grief")
-                .map((entry, idx) => (
-                  <Cell
-                    key={`cell-${entry.name}`}
-                    fill={PIE_COLORS[idx % PIE_COLORS.length]}
-                  />
-                ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                background: "#fff",
-                border: "1.5px solid #7c3aed",
-                color: "#222",
-                borderRadius: "12px",
-                fontSize: "1.03rem",
-                boxShadow: "0 3px 16px #eee",
-                padding: "0.8rem 1rem",
-              }}
-              formatter={(value, name, props) => {
-                const emotion = emotionResults[name as Emotion];
-                const percent = Math.round(
-                  ((value as number) /
-                    pieStats.reduce((a, b) => a + b.count, 0)) *
-                    100
-                );
-                return [
-                  <span>
-                    <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
-                      {emotion.emoji}
-                    </span>
-                    <b>{emotion.label}</b>:{" "}
-                    <span style={{ color: "#7c3aed" }}>{value}</span> result
-                    {value === 1 ? "" : "s"}
-                    <br />
-                    <span style={{ color: "#6d28d9" }}>
-                      {percent}% of users
-                    </span>
-                  </span>,
-                ];
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* TOP 10 EMOTIONS */}
-      <div className="top10-emotions-box">
-        <div className="top10-title">Top 10 Emotions</div>
-        <div className="top10-list">
-          {pieStats
-            .filter((s) => s.count > 0)
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10)
-            .map((stat, idx) => (
-              <div className="top10-emotion-row" key={stat.name}>
-                <span className="top10-emotion-emoji">
-                  {emotionResults[stat.name].emoji}
-                </span>
-                <span className="top10-emotion-label">
-                  {emotionResults[stat.name].label}
-                </span>
-                <span className="top10-emotion-value">
-                  {Math.round(
-                    (stat.count / pieStats.reduce((a, b) => a + b.count, 0)) *
-                      100
-                  )}
-                  %
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
-    </div>
-    {/* Overlay: Only when not logged in */}
-    {!userId && (
-      <div className="pie-signin-cover">
-        <div>
-          <p style={{marginBottom:"1.1rem"}}>Please sign in to view the community insights.</p>
-          <a href="/auth/login" className="btn-signin">Sign In</a>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
-
     </section>
   );
 }

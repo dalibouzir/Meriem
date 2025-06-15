@@ -10,7 +10,6 @@ interface AuthFormProps {
 }
 
 function getPasswordStrength(password: string): { label: string; color: string; score: number } {
-  // Basic strength logic
   let score = 0
   if (password.length >= 8) score++
   if (/[A-Z]/.test(password)) score++
@@ -37,12 +36,11 @@ export default function AuthForm({ type }: AuthFormProps) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setSuccess(null)
 
-    // Common validations
     if (!email || !password || (type === "signup" && !confirmPassword)) {
       setError("Please fill out all fields.")
       return
@@ -63,14 +61,14 @@ export default function AuthForm({ type }: AuthFormProps) {
     setLoading(true)
     try {
       if (type === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email, password })
-        if (error) throw error
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({ email, password })
+        if (signupError) throw signupError
 
-        if (data.user) {
+        if (signupData.user) {
           await supabase.from("users").insert([
             {
-              id: data.user.id,
-              email: data.user.email,
+              id: signupData.user.id,
+              email: signupData.user.email,
               name: email.split("@")[0],
               role: "client",
             },
@@ -78,15 +76,15 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
         setSuccess("Signup successful! Please check your email to confirm your account.")
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) throw error
+        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+        if (loginError) throw loginError
         setSuccess("Login successful! Redirecting...")
         setTimeout(() => {
           router.push("/profile")
-        }, 1200) // 1.2s for user to see success message
+        }, 1200)
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+    } catch (err: unknown) {
+      setError((err as Error).message || "Something went wrong")
     } finally {
       setLoading(false)
     }

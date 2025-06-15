@@ -3,17 +3,21 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
 import { useRouter } from "next/navigation"
 
+interface User {
+  id: string;
+  email: string;
+}
+
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
-    // Check auth state on mount
     const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser()
+      const { data } = await supabase.auth.getUser()
       if (data?.user) {
-        setUser(data.user)
+        setUser({ id: data.user.id, email: data.user.email })
       } else {
         router.push("/auth/login")
       }
@@ -21,7 +25,6 @@ export default function ProfilePage() {
     }
     getUser()
 
-    // Optionally, subscribe to auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         router.push("/auth/login")
