@@ -287,7 +287,8 @@ export default function QuizPage() {
                                 1,
                             },
                             (_, idx) => (
-                              <span key={idx}>
+                              <span  key={idx}>
+                                
                                 {(quizQs[step] as { min: number }).min + idx}
                               </span>
                             )
@@ -391,7 +392,7 @@ export default function QuizPage() {
                       const percent =
                         total > 0 ? Math.round((value / total) * 100) : 0;
                       return [
-                        <span>
+                        <span key="main" >
                           <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
                             {emotion.emoji}
                           </span>
