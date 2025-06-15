@@ -151,12 +151,14 @@ export default function QuizPage() {
         ]);
         if (error) setSaveStatus("❌ Error saving quiz result.");
         else setSaveStatus("✅ Quiz result saved!");
-      } catch (err) {
+      } catch {
         setSaveStatus("❌ Exception saving quiz result.");
       }
       setLoading(false);
     }
   };
+
+
 
   const retake = () => window.location.reload();
 
@@ -431,6 +433,7 @@ export default function QuizPage() {
       </div>
     </section>
   );
+
 }
 
 function shuffle<T>(arr: T[]): T[] {
