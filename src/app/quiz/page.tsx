@@ -10,13 +10,7 @@ import {
   emotions,
   emotionResults,
 } from "./questions";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const PIE_COLORS = [
   "#7c3aed",
@@ -100,7 +94,10 @@ export default function QuizPage() {
             (counts[r.top_emotion as Emotion] ?? 0) + 1;
         }
       });
-      const arr: PieStat[] = emotions.map((e) => ({ name: e, count: counts[e] }));
+      const arr: PieStat[] = emotions.map((e) => ({
+        name: e,
+        count: counts[e],
+      }));
       setPieStats(arr);
     }
     fetchStats();
@@ -157,8 +154,6 @@ export default function QuizPage() {
       setLoading(false);
     }
   };
-
-
 
   const retake = () => window.location.reload();
 
@@ -245,7 +240,8 @@ export default function QuizPage() {
                     />
                   </div>
                   <div className="progress-number">
-                    {step + 1} <span className="progress-divider">/</span> {total}
+                    {step + 1} <span className="progress-divider">/</span>{" "}
+                    {total}
                   </div>
                 </div>
                 <AnimatePresence mode="wait">
@@ -259,7 +255,7 @@ export default function QuizPage() {
                     <h2 className="quiz-q-hero">{quizQs[step].q}</h2>
                     {quizQs[step].type === "yesno" && (
                       <div className="options">
-                        {["Yes", "No"].map(opt => (
+                        {["Yes", "No"].map((opt) => (
                           <button
                             key={opt}
                             onClick={() => handleAnswer(opt)}
@@ -277,13 +273,26 @@ export default function QuizPage() {
                           min={(quizQs[step] as { min: number }).min}
                           max={(quizQs[step] as { max: number }).max}
                           value={scaleValue}
-                          onChange={e => setScaleValue(Number(e.target.value))}
+                          onChange={(e) =>
+                            setScaleValue(Number(e.target.value))
+                          }
                           className="slider"
                         />
                         <div className="scale-labels">
-                          {Array.from({ length: ((quizQs[step] as { max: number; min: number }).max - (quizQs[step] as { min: number }).min + 1) }, (_, idx) => (
-                            <span key={idx}>{(quizQs[step] as { min: number }).min + idx}</span>
-                          ))}
+                          {Array.from(
+                            {
+                              length:
+                                (quizQs[step] as { max: number; min: number })
+                                  .max -
+                                (quizQs[step] as { min: number }).min +
+                                1,
+                            },
+                            (_, idx) => (
+                              <span key={idx}>
+                                {(quizQs[step] as { min: number }).min + idx}
+                              </span>
+                            )
+                          )}
                         </div>
                         <button
                           onClick={() => handleAnswer(String(scaleValue))}
@@ -295,15 +304,17 @@ export default function QuizPage() {
                     )}
                     {quizQs[step].type === "options" && (
                       <div className="options">
-                        {(quizQs[step] as { options: string[] }).options.map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => handleAnswer(opt)}
-                            className="btn-outline"
-                          >
-                            {opt}
-                          </button>
-                        ))}
+                        {(quizQs[step] as { options: string[] }).options.map(
+                          (opt) => (
+                            <button
+                              key={opt}
+                              onClick={() => handleAnswer(opt)}
+                              className="btn-outline"
+                            >
+                              {opt}
+                            </button>
+                          )
+                        )}
                       </div>
                     )}
                   </motion.div>
@@ -313,11 +324,17 @@ export default function QuizPage() {
           ) : (
             <div key={em} className="emotion-cell">
               <div className="emotion-card emotion-card-full">
-                <span className="emotion-emoji">{emotionResults[em].emoji}</span>
+                <span className="emotion-emoji">
+                  {emotionResults[em].emoji}
+                </span>
                 <span className="emotion-name">{emotionResults[em].label}</span>
-                <span className="emotion-desc">{emotionResults[em].description}</span>
+                <span className="emotion-desc">
+                  {emotionResults[em].description}
+                </span>
                 {emotionResults[em].tip && (
-                  <span className="emotion-tip"><b>Tip:</b> {emotionResults[em].tip}</span>
+                  <span className="emotion-tip">
+                    <b>Tip:</b> {emotionResults[em].tip}
+                  </span>
                 )}
               </div>
             </div>
@@ -329,7 +346,13 @@ export default function QuizPage() {
       <div className="emotion-pie-section">
         <div className="emotion-pie-card" style={{ position: "relative" }}>
           <h3>Community Emotion Distribution</h3>
-          <div className={userId ? "pie-protected-content" : "pie-protected-content blurred-pie"}>
+          <div
+            className={
+              userId
+                ? "pie-protected-content"
+                : "pie-protected-content blurred-pie"
+            }
+          >
             {/* Chart */}
             <div className="emotion-pie-visual">
               <ResponsiveContainer width="100%" height={220}>
@@ -366,14 +389,16 @@ export default function QuizPage() {
                     formatter={(value: number, name: string) => {
                       const emotion = emotionResults[name as Emotion];
                       const total = pieStats.reduce((a, b) => a + b.count, 0);
-                      const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                      const percent =
+                        total > 0 ? Math.round((value / total) * 100) : 0;
                       return [
                         <span>
                           <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
                             {emotion.emoji}
                           </span>
                           <b>{emotion.label}</b>:{" "}
-                          <span style={{ color: "#7c3aed" }}>{value}</span> result
+                          <span style={{ color: "#7c3aed" }}>{value}</span>{" "}
+                          result
                           {value === 1 ? "" : "s"}
                           <br />
                           <span style={{ color: "#6d28d9" }}>
@@ -433,7 +458,6 @@ export default function QuizPage() {
       </div>
     </section>
   );
-
 }
 
 function shuffle<T>(arr: T[]): T[] {
