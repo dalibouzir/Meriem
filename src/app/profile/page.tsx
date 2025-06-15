@@ -16,10 +16,10 @@ export default function ProfilePage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data?.user) {
-        
-        setLoading(false)
+        setUser({ id: data.user.id, email: data.user.email ?? "" });
+        setLoading(false);
       } else {
-        router.push("/auth/login")
+        router.push("/auth/login");
       }
     });
 
@@ -39,7 +39,9 @@ export default function ProfilePage() {
 
   return (
     <div className="center" style={{ marginTop: "4rem" }}>
-      <h1 style={{ fontSize: "2rem", fontWeight: 700 }}>Welcome, {user?.email || "User"}!</h1>
+      <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#7c3aed" }}>
+        Welcome, {user?.email || "User"}!
+      </h1>
       <p style={{ margin: "1rem 0" }}>You are logged in.</p>
       <button
         className="btn-outline"
