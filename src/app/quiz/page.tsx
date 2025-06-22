@@ -14,8 +14,8 @@ async function fetchUserRole() {
 
 // Main Page Component
 export default function QuestionsPage() {
-  const [role, setRole] = useState(null);
-  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
