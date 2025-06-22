@@ -1,12 +1,16 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Import router for navigation after logout
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import type { User } from '@supabase/supabase-js';
+
+// User profile type
+type UserProfile = { name: string } | null;
 
 export default function Navbar() {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,8 +23,10 @@ export default function Navbar() {
           .eq('id', user.id)
           .single()
           .then(({ data }) => {
-            setProfile(data);
+            setProfile(data as UserProfile);
           });
+      } else {
+        setProfile(null);
       }
     });
   }, []);
