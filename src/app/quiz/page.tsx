@@ -371,9 +371,7 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                     value={
                       Array.isArray(answers[q.id])
                         ? ''
-                        : typeof answers[q.id] === 'number'
-                          ? answers[q.id]
-                          : (answers[q.id] || '')
+                        : (answers[q.id] as string | number | undefined) || ''
                     }
                     onChange={e =>
                       handleChange(
@@ -384,6 +382,7 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                     required
                   />
                 )}
+
               </div>
             ))}
             <button className="btn btn-primary" disabled={loading}>إرسال الإجابات</button>
@@ -392,3 +391,4 @@ function UserQuizForm({ userId }: { userId: string | null }) {
     </form>
   );
 }
+
