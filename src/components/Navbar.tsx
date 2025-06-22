@@ -1,11 +1,11 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import type { User } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
-// User profile type
 type UserProfile = { name: string } | null;
 
 export default function Navbar() {
@@ -13,31 +13,46 @@ export default function Navbar() {
   const [profile, setProfile] = useState<UserProfile>(null);
   const router = useRouter();
 
+  // Fetch and listen for auth changes
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-        supabase
+    // Helper to fetch user and profile
+    const fetchProfile = async (currentUser: User | null) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const { data } = await supabase
           .from('users')
           .select('name')
-          .eq('id', user.id)
-          .single()
-          .then(({ data }) => {
-            setProfile(data as UserProfile);
-          });
+          .eq('id', currentUser.id)
+          .single();
+        setProfile(data as UserProfile);
       } else {
         setProfile(null);
       }
+    };
+
+    // Initial user check
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      fetchProfile(user);
     });
+
+    // Subscribe to auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      fetchProfile(session?.user ?? null);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
   return (
     <nav className="navbar" dir="rtl" lang="ar">
       <div className="container">
-        {/* Far right: Logo */}
+        {/* Right: Logo */}
         <Link href="/" className="logo">منصة مريم بوزير العلاجية</Link>
 
-        {/* Middle: Links */}
+        {/* Middle: Navigation */}
         <div className="links">
           <Link href="/#home">الرئيسية</Link>
           <Link href="/#about">من نحن</Link>
@@ -46,7 +61,7 @@ export default function Navbar() {
           <Link href="/#contact">تواصل معنا</Link>
         </div>
 
-        {/* Far left: Auth/Profile */}
+        {/* Left: Auth/Profile actions */}
         <div className="left-section">
           {!user ? (
             <>
