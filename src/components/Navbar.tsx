@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 type UserProfile = { name: string } | null;
 
