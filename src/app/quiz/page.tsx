@@ -1,470 +1,376 @@
-"use client";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient";
-import {
-  Emotion,
-  Question,
-  questionPool,
-  emotions,
-  emotionResults,
-} from "./questions";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+// Utility to fetch role
+async function fetchUserRole() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data } = await supabase.from('users').select('role').eq('id', user.id).single();
+    return { role: data?.role || null, userId: user.id };
+  }
+  return { role: null, userId: null };
+}
 
-const PIE_COLORS = [
-  "#7c3aed",
-  "#f59e42",
-  "#22c55e",
-  "#ef4444",
-  "#6366f1",
-  "#eab308",
-  "#ec4899",
-];
-
-type PieStat = { name: Emotion; count: number };
-
-const EMOTIONS_GRID_ORDER: Emotion[] = [
-  "Joy",
-  "Pride",
-  "Love",
-  "Hope",
-  "Trust",
-  "Contentment",
-  "Surprise",
-  "Anticipation",
-  "Bittersweet",
-  "Vulnerability",
-  "Shame",
-  "Guilt",
-  "Anger",
-  "Loneliness",
-  "Sadness",
-  "Grief",
-  "Anxiety",
-  "Overwhelm",
-  "Exhaustion",
-  "Arousal",
-  "Numbness",
-  "Envy",
-  "Jealousy",
-  "Disgust",
-  "Contempt",
-];
-
-export default function QuizPage() {
-  const [quizQs, setQuizQs] = useState<Question[] | null>(null);
-  const [step, setStep] = useState<number>(0);
-  const [scores, setScores] = useState<Record<Emotion, number>>(
-    Object.fromEntries(emotions.map((e) => [e, 0])) as Record<Emotion, number>
-  );
-  const [scaleValue, setScaleValue] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<Emotion | null>(null);
-  const [saveStatus, setSaveStatus] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [pieStats, setPieStats] = useState<PieStat[]>([]);
-
-  // Quiz logic
-  useEffect(() => {
-    setQuizQs(shuffle(questionPool).slice(0, 25));
-    // Check auth ONCE
-    supabase.auth
-      .getUser()
-      .then(({ data }) => setUserId(data?.user?.id ?? null));
-  }, []);
-
-  // Pie stats logic
-  useEffect(() => {
-    async function fetchStats() {
-      const { data } = await supabase
-        .from("quiz_results")
-        .select("top_emotion");
-      if (!data) return;
-      const counts: Record<Emotion, number> = Object.fromEntries(
-        emotions.map((e) => [e, 0])
-      ) as Record<Emotion, number>;
-      (data as { top_emotion: Emotion }[]).forEach((r) => {
-        if (
-          r.top_emotion &&
-          typeof r.top_emotion === "string" &&
-          r.top_emotion in counts
-        ) {
-          counts[r.top_emotion as Emotion] =
-            (counts[r.top_emotion as Emotion] ?? 0) + 1;
-        }
-      });
-      const arr: PieStat[] = emotions.map((e) => ({
-        name: e,
-        count: counts[e],
-      }));
-      setPieStats(arr);
-    }
-    fetchStats();
-  }, []);
+// Main Page Component
+export default function QuestionsPage() {
+  const [role, setRole] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = quizQs?.[step];
-    if (q && q.type === "scale") setScaleValue(q.min);
-  }, [step, quizQs]);
-
-  const total = quizQs?.length ?? 0;
-
-  const handleAnswer = async (ans: string) => {
-    const q = quizQs![step];
-    const next = { ...scores };
-    if (q.type === "yesno") {
-      if (ans === "Yes") next[q.mapping]++;
-    } else if (q.type === "scale") {
-      next[q.mapping] += Number(ans);
-    } else if (q.type === "options") {
-      next[q.mapping[ans]]++;
-    }
-    setScores(next);
-
-    if (step + 1 < total) {
-      setStep(step + 1);
-    } else {
-      setLoading(true);
-      setSaveStatus(null);
-      await new Promise((r) => setTimeout(r, 800));
-      const top = (Object.entries(next) as [Emotion, number][]).sort(
-        (a, b) => b[1] - a[1]
-      )[0][0] as Emotion;
-      setResult(top);
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        const uid = userData?.user?.id || null;
-        setUserId(uid);
-        const totalScore = Object.values(next).reduce((a, b) => a + b, 0);
-        const { error } = await supabase.from("quiz_results").insert([
-          {
-            user_id: uid,
-            date_taken: new Date().toISOString(),
-            score: totalScore,
-            recommended_course_id: null,
-            top_emotion: top,
-          },
-        ]);
-        if (error) setSaveStatus("❌ Error saving quiz result.");
-        else setSaveStatus("✅ Quiz result saved!");
-      } catch {
-        setSaveStatus("❌ Exception saving quiz result.");
-      }
+    fetchUserRole().then(({ role, userId }) => {
+      setRole(role);
+      setUserId(userId);
       setLoading(false);
-    }
-  };
+    });
+  }, []);
 
-  const retake = () => window.location.reload();
-
-  // Render
-  if (!quizQs) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="spinner mb-4" />
-        <p className="text-lg font-medium">Loading your quiz…</p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="spinner mb-4" />
-        <p className="text-lg font-medium">Processing your results…</p>
-      </div>
-    );
-  }
-
-  if (result) {
-    const { emoji, label, description, tip } = emotionResults[result];
-    return (
-      <section className="emotion-grid-section">
-        <div className="quiz-card" style={{ margin: "auto" }}>
-          <div className="mb-4 text-5xl">{emoji}</div>
-          <h2 className="text-3xl font-bold mb-2">{label}</h2>
-          <p className="text-gray-700 text-lg mb-2">{description}</p>
-          {tip && (
-            <p className="text-indigo-600 text-base mb-2">
-              <b>Tip:</b> {tip}
-            </p>
-          )}
-          {saveStatus && (
-            <div
-              style={{
-                margin: "1rem 0",
-                fontWeight: 500,
-                color: saveStatus.startsWith("✅") ? "#22c55e" : "#ef4444",
-              }}
-            >
-              {saveStatus}
-            </div>
-          )}
-          <button onClick={retake} className="btn-primary">
-            Retake Quiz
-          </button>
-        </div>
-      </section>
-    );
-  }
-
-  // --- Page Intro Section ---
-  const Intro = (
-    <div className="emotion-intro">
-      <h1>Welcome to the EmotionAI Quiz</h1>
-      <p>
-        Discover your most prominent emotion today! This interactive grid helps
-        you recognize, understand, and manage your feelings. Take the quiz at
-        the center to get your top emotion and see expert tips for every mood.
-        <br />
-        <span style={{ color: "#7c3aed" }}>
-          Sign in to view community emotion trends.
-        </span>
-      </p>
-    </div>
-  );
+  if (loading) return <div className="loading">جاري التحقق من الصلاحيات...</div>;
 
   return (
-    <section className="emotion-grid-section">
-      {Intro}
-      <div className="emotion-grid">
-        {EMOTIONS_GRID_ORDER.map((em, i) =>
-          i === 12 ? (
-            <div key="quiz" className="emotion-quiz-cell emotion-quiz-gap">
-              <div className="quiz-card quiz-card-v2 emotion-quiz-fancy">
-                <div className="progress-container">
-                  <div className="progress-bar-bg">
-                    <div
-                      className="progress-bar-fill"
-                      style={{ width: `${((step + 1) / total) * 100}%` }}
-                    />
-                  </div>
-                  <div className="progress-number">
-                    {step + 1} <span className="progress-divider">/</span> {total}
-                  </div>
-                </div>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={step}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -30 }}
-                    transition={{ duration: 0.38 }}
-                  >
-                    <h2 className="quiz-q-hero">{quizQs[step].q}</h2>
-                    {quizQs[step].type === "yesno" && (
-                      <div className="options">
-                        {["Yes", "No"].map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => handleAnswer(opt)}
-                            className="btn-outline"
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {quizQs[step].type === "scale" && (
-                      <div className="scale-block">
-                        <input
-                          type="range"
-                          min={(quizQs[step] as { min: number }).min}
-                          max={(quizQs[step] as { max: number }).max}
-                          value={scaleValue}
-                          onChange={(e) =>
-                            setScaleValue(Number(e.target.value))
-                          }
-                          className="slider"
-                        />
-                        <div className="scale-labels">
-                          {Array.from(
-                            {
-                              length:
-                                (quizQs[step] as { max: number; min: number })
-                                  .max -
-                                (quizQs[step] as { min: number }).min +
-                                1,
-                            },
-                            (_, idx) => (
-                              <span  key={idx}>
-                                
-                                {(quizQs[step] as { min: number }).min + idx}
-                              </span>
-                            )
-                          )}
-                        </div>
-                        <button
-                          onClick={() => handleAnswer(String(scaleValue))}
-                          className="btn-primary next-shadow"
-                        >
-                          Next
-                        </button>
-                      </div>
-                    )}
-                    {quizQs[step].type === "options" && (
-                      <div className="options">
-                        {(quizQs[step] as { options: string[] }).options.map(
-                          (opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => handleAnswer(opt)}
-                              className="btn-outline"
-                            >
-                              {opt}
-                            </button>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
-          ) : (
-            <div key={em} className="emotion-cell">
-              <div className="emotion-card emotion-card-full">
-                <span className="emotion-emoji">
-                  {emotionResults[em].emoji}
-                </span>
-                <span className="emotion-name">{emotionResults[em].label}</span>
-                <span className="emotion-desc">
-                  {emotionResults[em].description}
-                </span>
-                {emotionResults[em].tip && (
-                  <span className="emotion-tip">
-                    <b>Tip:</b> {emotionResults[em].tip}
-                  </span>
+    <div className="questions-page-ar">
+      {role === 'therapist'
+        ? <TherapistQuestionsTable therapistId={userId} />
+        : <UserQuizForm userId={userId} />}
+    </div>
+  );
+}
+
+// Therapist CRUD Table UI
+function TherapistQuestionsTable({ therapistId }) {
+  const QUESTION_TYPES = [
+    { value: 'multiple', label: 'اختيار واحد' },
+    { value: 'checkbox', label: 'اختيارات متعددة' },
+    { value: 'number', label: 'رقم' },
+  ];
+  const [questions, setQuestions] = useState([]);
+  const [form, setForm] = useState({ text: '', type: 'multiple', options: [''], is_active: true });
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchQuestions();
+    // eslint-disable-next-line
+  }, []);
+
+  async function fetchQuestions() {
+    setLoading(true);
+    const { data, error } = await supabase.from('questions').select('*').order('created_at', { ascending: false });
+    if (error) setError(error.message);
+    setQuestions(data || []);
+    setLoading(false);
+  }
+
+  function handleFormChange(e, i) {
+    const { name, value, type, checked } = e.target;
+    if (name === 'options') {
+      const options = [...form.options];
+      options[i] = value;
+      setForm(f => ({ ...f, options }));
+    } else if (type === 'checkbox' && name === 'is_active') {
+      setForm(f => ({ ...f, is_active: checked }));
+    } else {
+      setForm(f => ({ ...f, [name]: value }));
+    }
+  }
+
+  function addOption() {
+    setForm(f => ({ ...f, options: [...f.options, ''] }));
+  }
+  function removeOption(i) {
+    const options = form.options.filter((_, idx) => idx !== i);
+    setForm(f => ({ ...f, options }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const options = (form.type === 'number') ? null : form.options.filter(Boolean);
+      if ((form.type !== 'number' && (!options || options.length < 2))) {
+        setError('أضف خيارين على الأقل');
+        setLoading(false);
+        return;
+      }
+      if (!form.text.trim()) {
+        setError('نص السؤال مطلوب');
+        setLoading(false);
+        return;
+      }
+      if (editingId) {
+        const { error } = await supabase.from('questions').update({
+          text: form.text, type: form.type, options, is_active: form.is_active
+        }).eq('id', editingId);
+        if (error) setError(error.message);
+      } else {
+        const { error } = await supabase.from('questions').insert([
+          { text: form.text, type: form.type, options, is_active: form.is_active, created_by: therapistId }
+        ]);
+        if (error) setError(error.message);
+      }
+      setForm({ text: '', type: 'multiple', options: [''], is_active: true });
+      setEditingId(null);
+      fetchQuestions();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleEdit(q) {
+    setEditingId(q.id);
+    setForm({
+      text: q.text,
+      type: q.type,
+      options: q.options || [''],
+      is_active: q.is_active,
+    });
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+    setLoading(true);
+    await supabase.from('questions').delete().eq('id', id);
+    fetchQuestions();
+    setLoading(false);
+  }
+
+  return (
+    <div className="therapist-table">
+      <h2 className="page-title">إدارة الأسئلة والاختبارات</h2>
+      {error && <div className="error-box">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="question-form">
+        <div>
+          <label>نص السؤال</label>
+          <input
+            name="text"
+            className="input"
+            value={form.text}
+            onChange={handleFormChange}
+            required
+            placeholder="اكتب نص السؤال هنا"
+          />
+        </div>
+        <div>
+          <label>نوع السؤال</label>
+          <select name="type" className="input" value={form.type} onChange={handleFormChange}>
+            {QUESTION_TYPES.map(opt => (
+              <option value={opt.value} key={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        {(form.type === 'multiple' || form.type === 'checkbox') && (
+          <div>
+            <label>الخيارات</label>
+            {form.options.map((opt, i) => (
+              <div key={i} className="option-row">
+                <input
+                  name="options"
+                  value={opt}
+                  onChange={e => handleFormChange(e, i)}
+                  className="input"
+                  placeholder={`الخيار ${i + 1}`}
+                  required
+                />
+                {form.options.length > 2 && (
+                  <button type="button" onClick={() => removeOption(i)} className="btn btn-sm btn-danger">حذف</button>
                 )}
               </div>
-            </div>
+            ))}
+            <button type="button" onClick={addOption} className="btn btn-outline btn-sm">إضافة خيار</button>
+          </div>
+        )}
+        <div className="active-row">
+          <input
+            name="is_active"
+            type="checkbox"
+            checked={form.is_active}
+            onChange={handleFormChange}
+            id="is_active"
+          />
+          <label htmlFor="is_active">نشط</label>
+        </div>
+        <div className="form-actions">
+          <button className="btn btn-primary" disabled={loading}>{editingId ? 'تحديث' : 'إضافة'} السؤال</button>
+          {editingId && (
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => { setEditingId(null); setForm({ text: '', type: 'multiple', options: [''], is_active: true }) }}>
+              إلغاء التعديل
+            </button>
+          )}
+        </div>
+      </form>
+
+      <div className="questions-table-wrapper">
+        <h3 className="table-title">جميع الأسئلة</h3>
+        {loading ? <div>جاري التحميل...</div> : (
+          questions.length === 0 ? <div>لا توجد أسئلة بعد.</div> : (
+            <table className="questions-table">
+              <thead>
+                <tr>
+                  <th>السؤال</th>
+                  <th>النوع</th>
+                  <th>الخيارات</th>
+                  <th>نشط</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {questions.map(q => (
+                  <tr key={q.id}>
+                    <td>{q.text}</td>
+                    <td>{QUESTION_TYPES.find(t => t.value === q.type)?.label}</td>
+                    <td>
+                      {(q.options && q.options.length > 0)
+                        ? <ul>{q.options.map((opt, i) => <li key={i}>{opt}</li>)}</ul>
+                        : <span className="muted">—</span>
+                      }
+                    </td>
+                    <td>{q.is_active ? '✓' : '✗'}</td>
+                    <td>
+                      <button className="btn btn-sm btn-outline" onClick={() => handleEdit(q)}>تعديل</button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(q.id)}>حذف</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )
         )}
       </div>
-
-      {/* PIE CHART + TOP 10 BOX */}
-      <div className="emotion-pie-section">
-        <div className="emotion-pie-card" style={{ position: "relative" }}>
-          <h3>Community Emotion Distribution</h3>
-          <div
-            className={
-              userId
-                ? "pie-protected-content"
-                : "pie-protected-content blurred-pie"
-            }
-          >
-            {/* Chart */}
-            <div className="emotion-pie-visual">
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={pieStats.filter(
-                      (s) => s.count > 0 && s.name !== "Grief"
-                    )}
-                    dataKey="count"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={85}
-                  >
-                    {pieStats
-                      .filter((s) => s.count > 0 && s.name !== "Grief")
-                      .map((entry, idx) => (
-                        <Cell
-                          key={entry.name}
-                          fill={PIE_COLORS[idx % PIE_COLORS.length]}
-                        />
-                      ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: "#fff",
-                      border: "1.5px solid #7c3aed",
-                      color: "#222",
-                      borderRadius: "12px",
-                      fontSize: "1.03rem",
-                      boxShadow: "0 3px 16px #eee",
-                      padding: "0.8rem 1rem",
-                    }}
-                    formatter={(value: number, name: string) => {
-                      const emotion = emotionResults[name as Emotion];
-                      const total = pieStats.reduce((a, b) => a + b.count, 0);
-                      const percent =
-                        total > 0 ? Math.round((value / total) * 100) : 0;
-                      return (
-                        <span>
-                          <span style={{ fontSize: "1.22rem", marginRight: 8 }}>
-                            {emotion.emoji}
-                          </span>
-                          <b>{emotion.label}</b>:{" "}
-                          <span style={{ color: "#7c3aed" }}>{value}</span> result
-                          {value === 1 ? "" : "s"}
-                          <br />
-                          <span style={{ color: "#6d28d9" }}>
-                            {percent}% of users
-                          </span>
-                        </span>
-                      );
-                    }}
-                    
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* TOP 10 EMOTIONS */}
-            <div className="top10-emotions-box">
-              <div className="top10-title">Top 10 Emotions</div>
-              <div className="top10-list">
-                {pieStats
-                  .filter((s) => s.count > 0)
-                  .sort((a, b) => b.count - a.count)
-                  .slice(0, 10)
-                  .map((stat, idx) => (
-                    <div className="top10-emotion-row" key={stat.name + '-' + idx}>
-                      <span className="top10-emotion-emoji">
-                        {emotionResults[stat.name].emoji}
-                      </span>
-                      <span className="top10-emotion-label">
-                        {emotionResults[stat.name].label}
-                      </span>
-                      <span className="top10-emotion-value">
-                        {Math.round(
-                          (stat.count /
-                            pieStats.reduce((a, b) => a + b.count, 0)) *
-                            100
-                        )}
-                        %
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-          {/* Overlay: Only when not logged in */}
-          {!userId && (
-            <div className="pie-signin-cover">
-              <div>
-                <p style={{ marginBottom: "1.1rem" }}>
-                  Please sign in to view the community insights.
-                </p>
-                <a href="/auth/login" className="btn-signin">
-                  Sign In
-                </a>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+// User Quiz Form
+function UserQuizForm({ userId }) {
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchActiveQuestions();
+  }, []);
+
+  async function fetchActiveQuestions() {
+    setLoading(true);
+    const { data } = await supabase.from('questions').select('*').eq('is_active', true);
+    setQuestions(data || []);
+    setLoading(false);
   }
-  return a;
+
+  function handleChange(q, value) {
+    setAnswers(a => ({ ...a, [q.id]: value }));
+  }
+
+  function handleCheckboxChange(q, idx) {
+    const prev = Array.isArray(answers[q.id]) ? answers[q.id] : [];
+    if (prev.includes(idx)) {
+      handleChange(q, prev.filter(i => i !== idx));
+    } else {
+      handleChange(q, [...prev, idx]);
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      for (const q of questions) {
+        const ans = answers[q.id];
+        if (typeof ans === 'undefined' || ans === null || (Array.isArray(ans) && ans.length === 0) || ans === '') {
+          setError('الرجاء الإجابة على جميع الأسئلة');
+          setLoading(false);
+          return;
+        }
+      }
+      // Store answers one by one
+      for (const q of questions) {
+        let answerValue = answers[q.id];
+        // For multiple: store index; for checkbox: indices; for number: value
+        await supabase.from('answers').insert([
+          {
+            question_id: q.id,
+            user_id: userId,
+            answer: answerValue,
+          }
+        ]);
+      }
+      setSent(true);
+      setLoading(false);
+    } catch (err) {
+      setError('حدث خطأ يرجى المحاولة لاحقاً');
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <div>جاري التحميل...</div>;
+  if (sent) return <div className="success-box">تم إرسال إجاباتك بنجاح، شكراً لمشاركتك!</div>;
+
+  return (
+    <form onSubmit={handleSubmit} className="user-quiz-form">
+      <h2 className="page-title">استبيان الأسئلة</h2>
+      {error && <div className="error-box">{error}</div>}
+      {questions.length === 0
+        ? <div>لا توجد أسئلة حالياً.</div>
+        : (
+          <>
+            {questions.map(q => (
+              <div className="user-question" key={q.id}>
+                <div className="question-label">{q.text}</div>
+                {q.type === 'multiple' && (
+                  <div className="choices">
+                    {q.options.map((opt, idx) => (
+                      <label key={idx} className="choice">
+                        <input
+                          type="radio"
+                          name={`q${q.id}`}
+                          checked={answers[q.id] === idx}
+                          onChange={() => handleChange(q, idx)}
+                          required
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {q.type === 'checkbox' && (
+                  <div className="choices">
+                    {q.options.map((opt, idx) => (
+                      <label key={idx} className="choice">
+                        <input
+                          type="checkbox"
+                          checked={Array.isArray(answers[q.id]) && answers[q.id].includes(idx)}
+                          onChange={() => handleCheckboxChange(q, idx)}
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {q.type === 'number' && (
+                  <input
+                    type="number"
+                    className="input"
+                    value={answers[q.id] || ''}
+                    onChange={e => handleChange(q, e.target.value)}
+                    required
+                  />
+                )}
+              </div>
+            ))}
+            <button className="btn btn-primary" disabled={loading}>إرسال الإجابات</button>
+          </>
+        )}
+    </form>
+  );
 }
+

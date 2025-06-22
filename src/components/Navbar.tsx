@@ -1,26 +1,70 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Import router for navigation after logout
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="container">
-        <Link href="/" className="logo">EmotionAI</Link>
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const router = useRouter();
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        supabase
+          .from('users')
+          .select('name')
+          .eq('id', user.id)
+          .single()
+          .then(({ data }) => {
+            setProfile(data);
+          });
+      }
+    });
+  }, []);
+
+  return (
+    <nav className="navbar" dir="rtl" lang="ar">
+      <div className="container">
+        {/* Far right: Logo */}
+        <Link href="/" className="logo">منصة مريم بوزير العلاجية</Link>
+
+        {/* Middle: Links */}
         <div className="links">
-          <Link href="/#home">Home</Link>
-          <Link href="/#about">About</Link>
-          <Link href="/#courses">Courses</Link>
-          <Link href="/quiz">Q&A</Link>
-          <Link href="/#contact">Contact</Link>
+          <Link href="/#home">الرئيسية</Link>
+          <Link href="/#about">من نحن</Link>
+          <Link href="/#courses">الدورات</Link>
+          <Link href="/quiz">الأسئلة والأجوبة</Link>
+          <Link href="/#contact">تواصل معنا</Link>
         </div>
 
-        <div className="ml-auto flex items-center space-x-4">
-  <Link href="/auth/login" className="btn-outline navbar-btn">Login</Link>
-  <Link href="/auth/signup" className="btn-primary navbar-btn">Sign Up</Link>
-</div>
-
+        {/* Far left: Auth/Profile */}
+        <div className="left-section">
+          {!user ? (
+            <>
+              <Link href="/auth/login" className="btn-outline navbar-btn">تسجيل الدخول</Link>
+              <Link href="/auth/signup" className="btn-primary navbar-btn">إنشاء حساب</Link>
+            </>
+          ) : (
+            <>
+              <div className="user-profile-name">
+                {profile?.name || 'المستخدم'}
+              </div>
+              <button
+                className="btn-outline navbar-btn"
+                style={{ marginRight: '10px' }}
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.push("/auth/login");
+                }}
+              >
+                تسجيل الخروج
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

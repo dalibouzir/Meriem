@@ -13,16 +13,16 @@ const fadeUp = {
 
 export default function HomePage() {
   const courses = [
-    { title: 'Stress Management Mastery', desc: 'Practical techniques to reduce stress, from breathwork to cognitive reframing.', imgQuery: 'stress', duration: '4 weeks' },
-    { title: 'Resilience Bootcamp', desc: 'Build unshakeable resilience with daily micro-habits and targeted mindset shifts.', imgQuery: 'resilience', duration: '6 weeks' },
-    { title: 'Mindfulness 101', desc: 'Intro to mindfulness practice: guided meditations, journaling prompts, and self-check tools.', imgQuery: 'mindfulness', duration: '3 weeks' },
+    { title: 'إتقان إدارة التوتر', desc: 'تقنيات عملية للحد من التوتر، من تمارين التنفس إلى إعادة الهيكلة المعرفية.', imgQuery: 'stress', duration: '٤ أسابيع' },
+    { title: 'معسكر المرونة', desc: 'بناء مرونة لا تهتز من خلال عادات صغيرة يومية وتحولات عقلية مستهدفة.', imgQuery: 'resilience', duration: '٦ أسابيع' },
+    { title: 'أساسيات اليقظة الذهنية', desc: 'مقدمة في ممارسة اليقظة: تأملات موجهة، تمارين كتابة، وأدوات فحص ذاتي.', imgQuery: 'mindfulness', duration: '٣ أسابيع' },
   ]
 
   const features = [
-    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/artificial-intelligence.png', text: 'AI-driven self-help modules tailored to your unique emotional profile' },
-    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/yoga.png', text: 'Guided exercises for stress relief, anxiety management & improved focus' },
-    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/video-call.png', text: 'On-demand video chats with a licensed therapist at your convenience' },
-    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/combo-chart--v1.png', text: 'Progress tracking dashboards & personalized next-step recommendations' },
+    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/artificial-intelligence.png', text: 'وحدات مساعدة ذاتية مدفوعة بالذكاء الاصطناعي مصممة خصيصاً لمشاعرك الفريدة' },
+    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/yoga.png', text: 'تمارين موجهة لتخفيف التوتر، إدارة القلق، وتعزيز التركيز' },
+    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/video-call.png', text: 'جلسات فيديو فورية مع معالجة معتمدة حسب راحتك' },
+    { icon: 'https://img.icons8.com/ios-filled/50/7C3AED/combo-chart--v1.png', text: 'لوحات متابعة التقدم وتوصيات مخصصة للخطوة التالية' },
   ]
 
   const instaUrls = [
@@ -33,29 +33,29 @@ export default function HomePage() {
   ]
 
   return (
-    <main>
+    <main dir="rtl" lang="ar">
 
       {/* HERO */}
       <section id="home" className="hero section-white">
         <motion.h1 initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6 }}>
-          Empower Your Emotions with <span className="highlight">EmotionAI</span>
+          عزز مشاعرك مع <span className="highlight">منصة مريم بوزير العلاجية</span>
         </motion.h1>
         <motion.p className="lead" initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}>
-          A one-stop platform combining cutting-edge AI tools, interactive practices, and real-time therapy to help you thrive.
+          منصة شاملة تجمع أحدث أدوات الذكاء الاصطناعي مع تمارين تفاعلية وجلسات علاجية مباشرة لمساعدتك على الازدهار.
         </motion.p>
         <motion.div className="btn-group" initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.4 }}>
-          <Link href="/quiz" className="btn-outline">Take the Mood Quiz</Link>
-          <Link href="#about" className="btn-primary">Discover More</Link>
+          <Link href="/quiz" className="btn-outline">ابدأ اختبار المزاج</Link>
+          <Link href="#about" className="btn-primary">اكتشف المزيد</Link>
         </motion.div>
         <motion.p className="testimonial" initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.6 }}>
-          “EmotionAI helped me regain control over my stress—simple, smart, and supportive.” &mdash; Alex R.
+          "ساعدتني منصة مريم بوزير العلاجية على استعادة السيطرة على توتري — بسيطة، ذكية، وداعمة." &mdash; ألكس ر.
         </motion.p>
       </section>
 
       {/* ABOUT */}
       <section id="about" className="section section-purple-50 text-left-md">
         <motion.h2 className="section-title" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6 }}>
-          What EmotionAI Brings
+          ماذا تقدم منصة مريم بوزير العلاجية؟
         </motion.h2>
         <motion.div className="about-grid" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}>
           {features.map(f => (
@@ -65,17 +65,17 @@ export default function HomePage() {
             </div>
           ))}
         </motion.div>
-        <p className="subheading">Why choose EmotionAI?</p>
+        <p className="subheading">لماذا تختار منصة مريم بوزير العلاجية؟</p>
         <p className="section-text">
-          From beginners to seasoned practitioners, our platform adapts to your pace and style. 
-          Dive into on-demand modules, earn badges for milestones, and chat live with Meriem Bouzir, our lead therapist.
+          من المبتدئين إلى المتمرسين، منصتنا تتكيف مع وتيرتك وأسلوبك. 
+          استكشف وحدات التدريب عند الطلب، واحصل على شارات عند تحقيق الإنجازات، وتواصل مباشرة مع مريم بوزير، أخصائية العلاج الرئيسية لدينا.
         </p>
       </section>
 
       {/* COURSES & PROGRAMS */}
       <section id="courses" className="section section-white text-right-md">
         <motion.h2 className="section-title" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6 }}>
-          Courses & Programs
+          الدورات والبرامج
         </motion.h2>
         <motion.div className="courses-grid" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}>
           {courses.map(c => (
@@ -84,8 +84,8 @@ export default function HomePage() {
               <div className="card-content">
                 <h3>{c.title}</h3>
                 <p className="section-text">{c.desc}</p>
-                <div className="card-meta">Duration: {c.duration}</div>
-                <Link href="/signup" className="btn-primary">Enroll Now</Link>
+                <div className="card-meta">المدة: {c.duration}</div>
+                <Link href="/signup" className="btn-primary">سجل الآن</Link>
               </div>
             </div>
           ))}
@@ -95,10 +95,10 @@ export default function HomePage() {
       {/* VIDEO HIGHLIGHTS */}
       <section id="highlights" className="section section-purple-50 text-left-md">
         <motion.h2 className="section-title" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6 }}>
-          Course Video Highlights
+          مقتطفات من الدورات بالفيديو
         </motion.h2>
         <p className="subheading">
-          Peek inside our sessions—real users navigating real challenges, guided by AI and human empathy.
+          لمحة من جلساتنا — مستخدمون حقيقيون يواجهون تحديات حقيقية، بتوجيه من الذكاء الاصطناعي والتعاطف الإنساني.
         </p>
         <motion.div className="courses-grid" initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.2 }}>
           {instaUrls.map(url => (
@@ -111,102 +111,99 @@ export default function HomePage() {
           ))}
         </motion.div>
         <Script
-  src="https://www.instagram.com/embed.js"
-  strategy="lazyOnload"
-  onLoad={() => window.instgrm?.Embeds.process()}
-/>
-
+          src="https://www.instagram.com/embed.js"
+          strategy="lazyOnload"
+          onLoad={() => window.instgrm?.Embeds.process()}
+        />
       </section>
 
+      {/* CONTACT */}
+      <section
+        id="contact"
+        className="section section-purple-200 text-left-md"
+      >
+        <motion.h2
+          className="section-title contact-title"
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          transition={{ duration: 0.6 }}
+        >
+          تعرف على أخصائيتك
+        </motion.h2>
 
-<section
-  id="contact"
-  className="section section-purple-200 text-left-md"
->
-  <motion.h2
-    className="section-title contact-title"
-    initial="hidden"
-    whileInView="visible"
-    variants={fadeUp}
-    transition={{ duration: 0.6 }}
-  >
-    Meet Your Therapist
-  </motion.h2>
+        <motion.div
+          className="contact-container"
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Image
+            src="/images/meriem.jpg"
+            alt="مريم بوزير"
+            width={300}
+            height={300}
+            className="therapist-photo"
+          />
 
-  <motion.div
-    className="contact-container"
-    initial="hidden"
-    whileInView="visible"
-    variants={fadeUp}
-    transition={{ duration: 0.6, delay: 0.2 }}
-  >
-<Image
-  src="/images/meriem.jpg"
-  alt="Meriem Bouzir"
-  width={300}
-  height={300}
-  className="therapist-photo"
-/>
+          <div className="contact-info">
+            <p className="section-text">
+              <strong>مريم بوزير</strong> هي المؤسسة والمعالجة الرئيسية وراء منصة منصة مريم بوزير العلاجية.
+              بخبرة تزيد عن عشر سنوات في العلاج المعرفي السلوكي واليقظة الذهنية،
+              تمزج بين التعاطف والأساليب العلمية وذكاء الآلة لإرشادك.
+            </p>
+            <p className="section-text">
+              احجز <strong>استشارة مجانية لمدة 15 دقيقة</strong> لاكتشاف كيف يمكن لـ منصة مريم بوزير العلاجية دعم رحلتك.
+            </p>
+            <div className="btn-group">
+              <Link href="mailto:meriem.bouzir@example.com" className="btn-outline">
+                راسل مريم
+              </Link>
+              <Link href="/signup" className="btn-primary">
+                احجز جلسة
+              </Link>
+            </div>
+          </div>
+        </motion.div>
 
-
-    <div className="contact-info">
-      <p className="section-text">
-        <strong>Meriem Bouzir</strong> is the founder and lead therapist behind EmotionAI. 
-        With over 10 years of experience in Cognitive Behavioral Therapy and Mindfulness, 
-        she blends empathy, evidence-based techniques, and AI insights to guide you.
-      </p>
-      <p className="section-text">
-        Schedule a <strong>free 15-minute consultation</strong> to explore how EmotionAI can support your journey.
-      </p>
-      <div className="btn-group">
-        <Link href="mailto:meriem.bouzir@example.com" className="btn-outline">
-          Email Meriem
-        </Link>
-        <Link href="/signup" className="btn-primary">
-          Book a Session
-        </Link>
-      </div>
-    </div>
-  </motion.div>
-
-  <motion.div
-    className="social-links"
-    initial="hidden"
-    whileInView="visible"
-    variants={fadeUp}
-    transition={{ duration: 0.6, delay: 0.4 }}
-  >
-    <a href="https://www.facebook.com/myriem.bouzir" target="_blank" rel="noreferrer">
-      <img
-        src="https://img.icons8.com/color/48/000000/facebook-new.png"
-        alt="Facebook"
-        className="social-icon"
-      />
-    </a>
-    <a href="https://www.instagram.com/meriem.bouzir/" target="_blank" rel="noreferrer">
-      <img
-        src="https://img.icons8.com/color/48/000000/instagram-new.png"
-        alt="Instagram"
-        className="social-icon"
-      />
-    </a>
-    <a href="https://www.linkedin.com/in/meriem-bouzir-917624135/" target="_blank" rel="noreferrer">
-      <img
-        src="https://img.icons8.com/color/48/000000/linkedin-circled.png"
-        alt="LinkedIn"
-        className="social-icon"
-      />
-    </a>
-    <a href="https://www.youtube.com/@Haythem.meriem.podcast" target="_blank" rel="noreferrer">
-      <img
-        src="https://img.icons8.com/color/48/000000/youtube-play.png"
-        alt="YouTube"
-        className="social-icon"
-      />
-    </a>
-  </motion.div>
-</section>
-
+        <motion.div
+          className="social-links"
+          initial="hidden"
+          whileInView="visible"
+          variants={fadeUp}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <a href="https://www.facebook.com/myriem.bouzir" target="_blank" rel="noreferrer">
+            <img
+              src="https://img.icons8.com/color/48/000000/facebook-new.png"
+              alt="فيسبوك"
+              className="social-icon"
+            />
+          </a>
+          <a href="https://www.instagram.com/meriem.bouzir/" target="_blank" rel="noreferrer">
+            <img
+              src="https://img.icons8.com/color/48/000000/instagram-new.png"
+              alt="إنستغرام"
+              className="social-icon"
+            />
+          </a>
+          <a href="https://www.linkedin.com/in/meriem-bouzir-917624135/" target="_blank" rel="noreferrer">
+            <img
+              src="https://img.icons8.com/color/48/000000/linkedin-circled.png"
+              alt="لينكدإن"
+              className="social-icon"
+            />
+          </a>
+          <a href="https://www.youtube.com/@Haythem.meriem.podcast" target="_blank" rel="noreferrer">
+            <img
+              src="https://img.icons8.com/color/48/000000/youtube-play.png"
+              alt="يوتيوب"
+              className="social-icon"
+            />
+          </a>
+        </motion.div>
+      </section>
 
     </main>
   )
