@@ -2,6 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
+// Type for Questions table
+type Question = {
+  id: string;
+  text: string;
+  type: 'multiple' | 'checkbox' | 'number';
+  options: string[];
+  is_active: boolean;
+  created_by?: string;
+};
+
 // Utility to fetch role
 async function fetchUserRole(): Promise<{ role: string | null, userId: string | null }> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -44,25 +54,28 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
     { value: 'checkbox', label: 'اختيارات متعددة' },
     { value: 'number', label: 'رقم' },
   ];
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [form, setForm] = useState<{ text: string; type: string; options: string[]; is_active: boolean }>({ text: '', type: 'multiple', options: [''], is_active: true });
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [form, setForm] = useState<{ text: string; type: string; options: string[]; is_active: boolean }>({
+    text: '', type: 'multiple', options: [''], is_active: true
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchQuestions();
-  }, []);
+  useEffect(() => { fetchQuestions(); }, []);
 
   async function fetchQuestions() {
     setLoading(true);
     const { data, error } = await supabase.from('questions').select('*').order('created_at', { ascending: false });
     if (error) setError(error.message);
-    setQuestions(data || []);
+    setQuestions(data as Question[] || []);
     setLoading(false);
   }
 
-  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, i?: number) {
+  function handleFormChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    i?: number
+  ) {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     if (name === 'options' && typeof i === 'number') {
       const options = [...form.options];
@@ -118,7 +131,7 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
     }
   }
 
-  function handleEdit(q: any) {
+  function handleEdit(q: Question) {
     setEditingId(q.id);
     setForm({
       text: q.text,
@@ -164,7 +177,7 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
         {(form.type === 'multiple' || form.type === 'checkbox') && (
           <div>
             <label>الخيارات</label>
-            {form.options.map((opt, i) => (
+            {form.options.map((opt: string, i: number) => (
               <div key={i} className="option-row">
                 <input
                   name="options"
@@ -220,7 +233,7 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
                 </tr>
               </thead>
               <tbody>
-                {questions.map((q: any) => (
+                {questions.map((q: Question) => (
                   <tr key={q.id}>
                     <td>{q.text}</td>
                     <td>{QUESTION_TYPES.find(t => t.value === q.type)?.label}</td>
@@ -248,29 +261,27 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
 
 // User Quiz Form
 function UserQuizForm({ userId }: { userId: string | null }) {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [answers, setAnswers] = useState<{ [key: string]: any }>({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<{ [key: string]: string | number | number[] }>({});
   const [loading, setLoading] = useState(true);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchActiveQuestions();
-  }, []);
+  useEffect(() => { fetchActiveQuestions(); }, []);
 
   async function fetchActiveQuestions() {
     setLoading(true);
     const { data } = await supabase.from('questions').select('*').eq('is_active', true);
-    setQuestions(data || []);
+    setQuestions(data as Question[] || []);
     setLoading(false);
   }
 
-  function handleChange(q: any, value: any) {
+  function handleChange(q: Question, value: number | string | number[]) {
     setAnswers(a => ({ ...a, [q.id]: value }));
   }
 
-  function handleCheckboxChange(q: any, idx: number) {
-    const prev = Array.isArray(answers[q.id]) ? answers[q.id] : [];
+  function handleCheckboxChange(q: Question, idx: number) {
+    const prev = Array.isArray(answers[q.id]) ? answers[q.id] as number[] : [];
     if (prev.includes(idx)) {
       handleChange(q, prev.filter((i: number) => i !== idx));
     } else {
@@ -321,7 +332,7 @@ function UserQuizForm({ userId }: { userId: string | null }) {
         ? <div>لا توجد أسئلة حالياً.</div>
         : (
           <>
-            {questions.map((q: any) => (
+            {questions.map((q: Question) => (
               <div className="user-question" key={q.id}>
                 <div className="question-label">{q.text}</div>
                 {q.type === 'multiple' && (
@@ -346,7 +357,7 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                       <label key={idx} className="choice">
                         <input
                           type="checkbox"
-                          checked={Array.isArray(answers[q.id]) && answers[q.id].includes(idx)}
+                          checked={Array.isArray(answers[q.id]) && (answers[q.id] as number[]).includes(idx)}
                           onChange={() => handleCheckboxChange(q, idx)}
                         />
                         <span>{opt}</span>
