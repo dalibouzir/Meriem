@@ -366,27 +366,25 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                   </div>
                 )}
                 {q.type === 'number' && (
-                  <input
-                    type="number"
-                    className="input"
-                    value={
-                      Array.isArray(answers[q.id])
-                        ? ''
-                        : typeof answers[q.id] === 'number'
-                        ? answers[q.id]
-                        : typeof answers[q.id] === 'string'
-                        ? answers[q.id]
-                        : ''
-                    }
-                    onChange={e =>
-                      handleChange(
-                        q,
-                        e.target.value === '' ? '' : Number(e.target.value)
-                      )
-                    }
-                    required
-                  />
-                )}
+  <input
+    type="number"
+    className="input"
+    // Always provide a string or number for value (never array)
+    value={
+      Array.isArray(answers[q.id])
+        ? ''
+        : (answers[q.id] as string | number | undefined) ?? ''
+    }
+    onChange={e =>
+      handleChange(
+        q,
+        e.target.value === '' ? '' : Number(e.target.value)
+      )
+    }
+    required
+  />
+)}
+
               </div>
             ))}
             <button className="btn btn-primary" disabled={loading}>إرسال الإجابات</button>
