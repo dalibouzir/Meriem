@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import Script from 'next/script'
 import Image from 'next/image'
 import '../styles/globals.css'
+
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -48,7 +49,7 @@ export default function HomePage() {
           <Link href="#about" className="btn-primary">اكتشف المزيد</Link>
         </motion.div>
         <motion.p className="testimonial" initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.6 }}>
-          "ساعدتني منصة مريم بوزير العلاجية على استعادة السيطرة على توتري — بسيطة، ذكية، وداعمة." &mdash; ألكس ر.
+          &quot;ساعدتني منصة مريم بوزير العلاجية على استعادة السيطرة على توتري — بسيطة، ذكية، وداعمة.&quot; &mdash; ألكس ر.
         </motion.p>
       </section>
 
@@ -149,7 +150,7 @@ export default function HomePage() {
 
           <div className="contact-info">
             <p className="section-text">
-              <strong>مريم بوزير</strong> هي المؤسسة والمعالجة الرئيسية وراء منصة منصة مريم بوزير العلاجية.
+              <strong>مريم بوزير</strong> هي المؤسسة والمعالجة الرئيسية وراء منصة مريم بوزير العلاجية.
               بخبرة تزيد عن عشر سنوات في العلاج المعرفي السلوكي واليقظة الذهنية،
               تمزج بين التعاطف والأساليب العلمية وذكاء الآلة لإرشادك.
             </p>
@@ -204,7 +205,6 @@ export default function HomePage() {
           </a>
         </motion.div>
       </section>
-
     </main>
   )
 }

@@ -294,7 +294,7 @@ function UserQuizForm({ userId }) {
       }
       // Store answers one by one
       for (const q of questions) {
-        let answerValue = answers[q.id];
+        const answerValue = answers[q.id]; // changed let -> const for lint
         // For multiple: store index; for checkbox: indices; for number: value
         await supabase.from('answers').insert([
           {
@@ -373,4 +373,3 @@ function UserQuizForm({ userId }) {
     </form>
   );
 }
-
