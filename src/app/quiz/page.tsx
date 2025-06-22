@@ -52,7 +52,7 @@ function TherapistQuestionsTable({ therapistId }) {
 
   useEffect(() => {
     fetchQuestions();
-    // eslint-disable-next-line
+
   }, []);
 
   async function fetchQuestions() {
@@ -306,10 +306,11 @@ function UserQuizForm({ userId }) {
       }
       setSent(true);
       setLoading(false);
-    } catch (err) {
+    }  catch {
       setError('حدث خطأ يرجى المحاولة لاحقاً');
       setLoading(false);
     }
+    
   }
 
   if (loading) return <div>جاري التحميل...</div>;
