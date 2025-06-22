@@ -13,7 +13,7 @@ type Question = {
 };
 
 // Utility to fetch role
-async function fetchUserRole(): Promise<{ role: string | null; userId: string | null }> {
+async function fetchUserRole(): Promise<{ role: string | null, userId: string | null }> {
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     const { data } = await supabase.from('users').select('role').eq('id', user.id).single();
@@ -56,7 +56,7 @@ function TherapistQuestionsTable({ therapistId }: { therapistId: string | null }
   ];
   const [questions, setQuestions] = useState<Question[]>([]);
   const [form, setForm] = useState<{ text: string; type: string; options: string[]; is_active: boolean }>({
-    text: '', type: 'multiple', options: [''], is_active: true,
+    text: '', type: 'multiple', options: [''], is_active: true
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -372,7 +372,9 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                     value={
                       Array.isArray(answers[q.id])
                         ? ''
-                        : typeof answers[q.id] === 'number' || typeof answers[q.id] === 'string'
+                        : typeof answers[q.id] === 'number'
+                        ? answers[q.id]
+                        : typeof answers[q.id] === 'string'
                         ? answers[q.id]
                         : ''
                     }
