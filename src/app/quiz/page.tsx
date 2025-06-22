@@ -369,11 +369,12 @@ function UserQuizForm({ userId }: { userId: string | null }) {
                   <input
                     type="number"
                     className="input"
-                    value={answers[q.id] || ''}
+                    value={Array.isArray(answers[q.id]) ? '' : answers[q.id] || ''}
                     onChange={e => handleChange(q, (e.target as HTMLInputElement).value)}
                     required
                   />
                 )}
+
               </div>
             ))}
             <button className="btn btn-primary" disabled={loading}>إرسال الإجابات</button>
